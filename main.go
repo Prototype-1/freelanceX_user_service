@@ -19,6 +19,10 @@ portRepo "github.com/Prototype-1/freelanceX_user_service/internal/portfolio/repo
 portSvc "github.com/Prototype-1/freelanceX_user_service/internal/portfolio/service"
 portHdlr "github.com/Prototype-1/freelanceX_user_service/internal/portfolio/handler"
 portfolioPb "github.com/Prototype-1/freelanceX_user_service/proto/portfolio"
+reviewHandler "github.com/Prototype-1/freelanceX_user_service/internal/review/handler"
+reviewRepo "github.com/Prototype-1/freelanceX_user_service/internal/review/repository"
+reviewService "github.com/Prototype-1/freelanceX_user_service/internal/review/service"
+reviewPb "github.com/Prototype-1/freelanceX_user_service/proto/review"
 	"google.golang.org/grpc"
 )
 
@@ -43,10 +47,15 @@ func main() {
 	portfolioService := portSvc.NewService(portfolioRepo)
 	portfolioHandler := portHdlr.NewHandler(portfolioService)
 
+	reviewRepository := reviewRepo.NewReviewRepository(dbConn)
+	reviewService := reviewService.NewReviewService(reviewRepository)
+	reviewHandler := reviewHandler.NewReviewHandler(reviewService)
+
 	grpcServer := grpc.NewServer()
 	authPb.RegisterAuthServiceServer(grpcServer, authHandler)
 	profilePb.RegisterProfileServiceServer(grpcServer, profileHandler)
 	portfolioPb.RegisterPortfolioServiceServer(grpcServer, portfolioHandler)
+	reviewPb.RegisterReviewServiceServer(grpcServer, reviewHandler)
 
 
 	listener, err := net.Listen("tcp", ":"+config.AppConfig.Port)
