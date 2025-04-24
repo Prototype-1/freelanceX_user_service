@@ -7,6 +7,7 @@ import (
 	userModel "github.com/Prototype-1/freelanceX_user_service/internal/auth/model"
 	profileModel "github.com/Prototype-1/freelanceX_user_service/internal/profile/model"
 	portfolioModel "github.com/Prototype-1/freelanceX_user_service/internal/portfolio/model"
+	reviewModel "github.com/Prototype-1/freelanceX_user_service/internal/review/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -33,6 +34,7 @@ func AutoMigrate() error {
 		&userModel.User{},
 		&profileModel.FreelancerProfile{},
 		&portfolioModel.Portfolio{},
+		&reviewModel.FreelancerReview{},
 	)
 	if err != nil {
 		log.Printf("AutoMigrate error: %v", err)
