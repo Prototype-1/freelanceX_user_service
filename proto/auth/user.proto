@@ -1,0 +1,57 @@
+// proto/auth/auth.proto
+syntax = "proto3";
+
+package auth;
+
+option go_package = "github.com/Prototype-1/freelanceX_user_service/proto/auth;authPb";
+
+service AuthService {
+  rpc Register(RegisterRequest) returns (AuthResponse);
+  rpc Login(LoginRequest) returns (AuthResponse);
+  rpc OAuthLogin(OAuthRequest) returns (AuthResponse);
+  rpc Logout(LogoutRequest) returns (Empty);
+  rpc GetMe(SessionRequest) returns (UserResponse);
+}
+
+message RegisterRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+  string role = 4; // client/freelancer
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message OAuthRequest {
+  string email = 1;
+  string oauth_provider = 2;
+  string oauth_id = 3;
+}
+
+message LogoutRequest {
+  string session_id = 1;
+}
+
+message SessionRequest {
+  string token = 1;
+  string session_id = 2;
+}
+
+message AuthResponse {
+  string access_token = 1;
+  string session_id = 2;
+  string user_id = 3;
+}
+
+message UserResponse {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string role = 4;
+  bool is_role_selected = 5;
+}
+
+message Empty {}
