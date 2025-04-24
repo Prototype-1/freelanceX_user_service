@@ -4,23 +4,25 @@ import (
 	"context"
 	"errors"
 	"github.com/Prototype-1/freelanceX_user_service/pkg/redis"
+	"github.com/golang-jwt/jwt/v4"
 	"log"
 	"time"
-	"github.com/golang-jwt/jwt/v4"
 )
 
 var secretKey = []byte("your-jwt-secret-key")
 
 type Claims struct {
 	UserID string `json:"user_id"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 func GenerateAccessToken(userID string) (string, error) {
 	claims := Claims{
 		UserID: userID,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), // 24 hours expiration
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), 
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Subject:   userID,
 		},
 	}
 
@@ -42,18 +44,15 @@ func ParseAccessToken(tokenString string) (*Claims, error) {
 	return claims, nil
 }
 
-// Check if the session exists in Redis and matches the userID
 func ValidateSession(sessionID, userID string) bool {
 	ctx := context.Background()
 
-	// Fetch session data from Redis
 	storedUserID, err := redis.GetSession(ctx, sessionID)
 	if err != nil {
 		log.Println("Error fetching session from Redis:", err)
 		return false
 	}
 
-	// If session is found, compare with userID
 	if storedUserID != userID {
 		log.Println("Session userID mismatch: expected", userID, "but got", storedUserID)
 		return false

@@ -30,8 +30,8 @@ func InitDB(dsn string) (*gorm.DB, error) {
 func AutoMigrate() error {
 	err := DB.AutoMigrate(
 		&model.User{},
-		&model.FreelancerProfile{},
-		&model.Session{},
+		//&model.FreelancerProfile{},
+		//&model.Session{},
 	)
 	if err != nil {
 		log.Printf("AutoMigrate error: %v", err)
