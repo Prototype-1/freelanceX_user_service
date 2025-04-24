@@ -15,7 +15,10 @@ import (
    profileRepo "github.com/Prototype-1/freelanceX_user_service/internal/profile/repository"
    profileSvc "github.com/Prototype-1/freelanceX_user_service/internal/profile/service"
 profilePb "github.com/Prototype-1/freelanceX_user_service/proto/profile"
-
+portRepo "github.com/Prototype-1/freelanceX_user_service/internal/portfolio/repository"
+portSvc "github.com/Prototype-1/freelanceX_user_service/internal/portfolio/service"
+portHdlr "github.com/Prototype-1/freelanceX_user_service/internal/portfolio/handler"
+portfolioPb "github.com/Prototype-1/freelanceX_user_service/proto/portfolio"
 	"google.golang.org/grpc"
 )
 
@@ -36,9 +39,14 @@ func main() {
 	profileService := profileSvc.NewService(profileRepo)
 	profileHandler := profileHdlr.NewHandler(profileService)
 
+	portfolioRepo := portRepo.NewRepository(dbConn)
+	portfolioService := portSvc.NewService(portfolioRepo)
+	portfolioHandler := portHdlr.NewHandler(portfolioService)
+
 	grpcServer := grpc.NewServer()
 	authPb.RegisterAuthServiceServer(grpcServer, authHandler)
 	profilePb.RegisterProfileServiceServer(grpcServer, profileHandler)
+	portfolioPb.RegisterPortfolioServiceServer(grpcServer, portfolioHandler)
 
 
 	listener, err := net.Listen("tcp", ":"+config.AppConfig.Port)

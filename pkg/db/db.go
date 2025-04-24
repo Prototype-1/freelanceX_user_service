@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Prototype-1/freelanceX_user_service/internal/auth/model"
+	userModel "github.com/Prototype-1/freelanceX_user_service/internal/auth/model"
+	profileModel "github.com/Prototype-1/freelanceX_user_service/internal/profile/model"
+	portfolioModel "github.com/Prototype-1/freelanceX_user_service/internal/portfolio/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -18,7 +20,6 @@ func InitDB(dsn string) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// Migrate the schema
 	err = AutoMigrate()
 	if err != nil {
 		return nil, err
@@ -29,9 +30,9 @@ func InitDB(dsn string) (*gorm.DB, error) {
 
 func AutoMigrate() error {
 	err := DB.AutoMigrate(
-		&model.User{},
-		//&model.FreelancerProfile{},
-		//&model.Session{},
+		&userModel.User{},
+		&profileModel.FreelancerProfile{},
+		&portfolioModel.Portfolio{},
 	)
 	if err != nil {
 		log.Printf("AutoMigrate error: %v", err)
