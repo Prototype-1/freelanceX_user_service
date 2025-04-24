@@ -4,13 +4,17 @@ import (
 	"log"
 	"net"
 
-	"github.com/Prototype-1/freelanceX_user_service/internal/auth/handler"
-	"github.com/Prototype-1/freelanceX_user_service/internal/auth/repository"
-	"github.com/Prototype-1/freelanceX_user_service/internal/auth/service"
+	userHdlr "github.com/Prototype-1/freelanceX_user_service/internal/auth/handler"
+	userRepo "github.com/Prototype-1/freelanceX_user_service/internal/auth/repository"
+	userSvc "github.com/Prototype-1/freelanceX_user_service/internal/auth/service"
 	"github.com/Prototype-1/freelanceX_user_service/pkg/db"
 	"github.com/Prototype-1/freelanceX_user_service/pkg/redis"
 	"github.com/Prototype-1/freelanceX_user_service/config"
 	authPb "github.com/Prototype-1/freelanceX_user_service/proto/auth"
+	profileHdlr "github.com/Prototype-1/freelanceX_user_service/internal/profile/handler"
+   profileRepo "github.com/Prototype-1/freelanceX_user_service/internal/profile/repository"
+   profileSvc "github.com/Prototype-1/freelanceX_user_service/internal/profile/service"
+profilePb "github.com/Prototype-1/freelanceX_user_service/proto/profile"
 
 	"google.golang.org/grpc"
 )
@@ -24,12 +28,18 @@ func main() {
 		log.Fatalf("failed to initialize database: %v", err)
 	}
 
-	userRepo := repository.NewUserRepository(dbConn)
-	authService := service.NewAuthService(userRepo)
-	authHandler := handler.NewAuthHandler(authService)
+	userRepo := userRepo.NewUserRepository(dbConn)
+	authService := userSvc.NewAuthService(userRepo)
+	authHandler := userHdlr.NewAuthHandler(authService)
+
+	profileRepo := profileRepo.NewRepository(dbConn)
+	profileService := profileSvc.NewService(profileRepo)
+	profileHandler := profileHdlr.NewHandler(profileService)
 
 	grpcServer := grpc.NewServer()
 	authPb.RegisterAuthServiceServer(grpcServer, authHandler)
+	profilePb.RegisterProfileServiceServer(grpcServer, profileHandler)
+
 
 	listener, err := net.Listen("tcp", ":"+config.AppConfig.Port)
 	if err != nil {
