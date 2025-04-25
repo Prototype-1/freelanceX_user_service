@@ -29,7 +29,7 @@ func (s *AuthService) Register(ctx context.Context, req *authPb.RegisterRequest)
 			return nil, err
 		}
 		if exists {
-			return nil, errors.New("An admin already exists")
+			return nil, errors.New("an admin already exists")
 		}
 	}
 
@@ -51,20 +51,9 @@ func (s *AuthService) Register(ctx context.Context, req *authPb.RegisterRequest)
 		return nil, err
 	}
 
-	accessToken, err := jwt.GenerateAccessToken(user.ID.String())
-	if err != nil {
-		return nil, err
-	}
-
-	sessionID := "session-id"
-	if err := redis.SetSession(ctx, sessionID, user.ID.String(), time.Hour*24); err != nil {
-		return nil, err
-	}
 
 	return &authPb.AuthResponse{
-		AccessToken: accessToken,
-		SessionId:   sessionID,
-		UserId:      user.ID.String(),
+		UserId: user.ID.String(),
 	}, nil
 }
 
