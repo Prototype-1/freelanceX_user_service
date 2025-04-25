@@ -7,8 +7,8 @@ option go_package = "github.com/Prototype-1/freelanceX_user_service/proto/auth;a
 service AuthService {
   rpc Register(RegisterRequest) returns (AuthResponse);
   rpc Login(LoginRequest) returns (AuthResponse);
-  rpc OAuthLogin(OAuthRequest) returns (OAuthLoginResponse); // updated return
-  rpc SelectRole(SelectRoleRequest) returns (RoleSelectionResponse); // new rpc
+  rpc OAuthLogin(OAuthRequest) returns (OAuthLoginResponse); 
+  rpc SelectRole(SelectRoleRequest) returns (RoleSelectionResponse); 
   rpc Logout(LogoutRequest) returns (Empty);
   rpc GetMe(SessionRequest) returns (UserResponse);
 }
