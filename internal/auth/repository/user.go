@@ -13,6 +13,7 @@ type UserRepository interface {
 	GetUserByID(ctx context.Context, userID string) (*model.User, error)
 	GetUserByOAuthID(ctx context.Context, oauthProvider, oauthID string) (*model.User, error)
 	UpdateUserRole(ctx context.Context, userID string, role string) error
+	IsAdminExists(ctx context.Context) (bool, error) 
 }
 
 type userRepository struct {
@@ -72,5 +73,17 @@ func (r *userRepository) UpdateUserRole(ctx context.Context, userID string, role
 			"role":              role,
 			"is_role_selected": true,
 		}).Error
+}
+
+func (r *userRepository) IsAdminExists(ctx context.Context) (bool, error) {
+	var count int64
+	err := r.DB.WithContext(ctx).
+		Model(&model.User{}).
+		Where("role = ?", "admin").
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }
 

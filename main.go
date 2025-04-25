@@ -48,7 +48,7 @@ func main() {
 	portfolioHandler := portHdlr.NewHandler(portfolioService)
 
 	reviewRepository := reviewRepo.NewReviewRepository(dbConn)
-	reviewService := reviewService.NewReviewService(reviewRepository)
+	reviewService := reviewService.NewReviewService(reviewRepository, userRepo)
 	reviewHandler := reviewHandler.NewReviewHandler(reviewService)
 
 	grpcServer := grpc.NewServer()

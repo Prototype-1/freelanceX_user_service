@@ -23,6 +23,16 @@ func NewAuthService(repo repository.UserRepository) *AuthService {
 }
 
 func (s *AuthService) Register(ctx context.Context, req *authPb.RegisterRequest) (*authPb.AuthResponse, error) {
+	if req.Role == "admin" {
+		exists, err := s.UserRepo.IsAdminExists(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			return nil, errors.New("An admin already exists")
+		}
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
@@ -123,8 +133,18 @@ func (s *AuthService) OAuthLogin(ctx context.Context, req *authPb.OAuthRequest) 
 }
 
 func (s *AuthService) SelectRole(ctx context.Context, req *authPb.SelectRoleRequest) (*authPb.RoleSelectionResponse, error) {
-	if req.Role != "freelancer" && req.Role != "client" {
+	if req.Role != "freelancer" && req.Role != "client" && req.Role != "admin" {
 		return nil, errors.New("invalid role")
+	}
+
+	if req.Role == "admin" {
+		exists, err := s.UserRepo.IsAdminExists(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			return nil, errors.New("An admin already exists")
+		}
 	}
 
 	err := s.UserRepo.UpdateUserRole(ctx, req.UserId, req.Role)
@@ -136,7 +156,6 @@ func (s *AuthService) SelectRole(ctx context.Context, req *authPb.SelectRoleRequ
 		Message: "Role updated successfully",
 	}, nil
 }
-
 
 func (s *AuthService) Logout(ctx context.Context, req *authPb.LogoutRequest) (*authPb.Empty, error) {
 	if err := redis.DeleteSession(ctx, req.SessionId); err != nil {
