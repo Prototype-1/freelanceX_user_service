@@ -53,6 +53,7 @@ message AuthResponse {
   string access_token = 1;
   string session_id = 2;
   string user_id = 3;
+  string message = 4;
 }
 
 message OAuthLoginResponse {

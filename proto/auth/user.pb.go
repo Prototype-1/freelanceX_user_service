@@ -354,6 +354,7 @@ type AuthResponse struct {
 	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
 	SessionId     string                 `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	UserId        string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Message       string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -405,6 +406,13 @@ func (x *AuthResponse) GetSessionId() string {
 func (x *AuthResponse) GetUserId() string {
 	if x != nil {
 		return x.UserId
+	}
+	return ""
+}
+
+func (x *AuthResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
 	}
 	return ""
 }
@@ -691,12 +699,13 @@ const file_proto_auth_user_proto_rawDesc = "" +
 	"\x0eSessionRequest\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\x02 \x01(\tR\tsessionId\"i\n" +
+	"session_id\x18\x02 \x01(\tR\tsessionId\"\x83\x01\n" +
 	"\fAuthResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\tR\tsessionId\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\tR\x06userId\"\xf1\x01\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\x18\n" +
+	"\amessage\x18\x04 \x01(\tR\amessage\"\xf1\x01\n" +
 	"\x12OAuthLoginResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\x12!\n" +
 	"\faccess_token\x18\x02 \x01(\tR\vaccessToken\x12\x1d\n" +

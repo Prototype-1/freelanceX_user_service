@@ -1,17 +1,17 @@
 package service
 
 import (
-	"context"
-	"errors"
-	"time"
+"context"
+"errors"
+ "time"
+"golang.org/x/crypto/bcrypt"
+ "github.com/Prototype-1/freelanceX_user_service/internal/auth/model"
+"github.com/Prototype-1/freelanceX_user_service/pkg/redis"
+authPb "github.com/Prototype-1/freelanceX_user_service/proto/auth"
+ "github.com/Prototype-1/freelanceX_user_service/internal/auth/repository"
+"github.com/Prototype-1/freelanceX_user_service/pkg/jwt"
 
-	authPb "github.com/Prototype-1/freelanceX_user_service/proto/auth"
-	"github.com/Prototype-1/freelanceX_user_service/internal/auth/repository"
-	"github.com/Prototype-1/freelanceX_user_service/pkg/jwt"
-	"github.com/Prototype-1/freelanceX_user_service/pkg/redis"
-	"github.com/Prototype-1/freelanceX_user_service/internal/auth/model"
-	"golang.org/x/crypto/bcrypt"
-	//"log"
+
 )
 
 type AuthService struct {
@@ -53,7 +53,7 @@ func (s *AuthService) Register(ctx context.Context, req *authPb.RegisterRequest)
 
 
 	return &authPb.AuthResponse{
-		UserId: user.ID.String(),
+		Message: "Registration successful. Please log in to continue....",
 	}, nil
 }
 
