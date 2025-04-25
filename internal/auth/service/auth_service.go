@@ -54,6 +54,7 @@ func (s *AuthService) Register(ctx context.Context, req *authPb.RegisterRequest)
 
 	return &authPb.AuthResponse{
 		Message: "Registration successful. Please log in to continue....",
+		UserId: user.ID.String(),
 	}, nil
 }
 
