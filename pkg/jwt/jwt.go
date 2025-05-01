@@ -4,12 +4,15 @@ import (
 	"context"
 	"errors"
 	"github.com/Prototype-1/freelanceX_user_service/pkg/redis"
+	"github.com/Prototype-1/freelanceX_user_service/config"
 	"github.com/golang-jwt/jwt/v4"
 	"log"
 	"time"
 )
 
-var secretKey = []byte("your-jwt-secret-key")
+func getSecretKey() []byte {
+	return []byte(config.AppConfig.JWTSecret)
+}
 
 type Claims struct {
 	UserID string `json:"user_id"`
@@ -27,12 +30,12 @@ func GenerateAccessToken(userID string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(secretKey)
+	return token.SignedString(getSecretKey())
 }
 
 func ParseAccessToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return secretKey, nil
+		return getSecretKey(), nil
 	})
 	if err != nil || !token.Valid {
 		return nil, errors.New("invalid token")
