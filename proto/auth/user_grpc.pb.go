@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -35,7 +36,7 @@ type AuthServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	OAuthLogin(ctx context.Context, in *OAuthRequest, opts ...grpc.CallOption) (*OAuthLoginResponse, error)
 	SelectRole(ctx context.Context, in *SelectRoleRequest, opts ...grpc.CallOption) (*RoleSelectionResponse, error)
-	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*Empty, error)
+	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetMe(ctx context.Context, in *SessionRequest, opts ...grpc.CallOption) (*UserResponse, error)
 }
 
@@ -87,9 +88,9 @@ func (c *authServiceClient) SelectRole(ctx context.Context, in *SelectRoleReques
 	return out, nil
 }
 
-func (c *authServiceClient) Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (c *authServiceClient) Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Empty)
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, AuthService_Logout_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -115,7 +116,7 @@ type AuthServiceServer interface {
 	Login(context.Context, *LoginRequest) (*AuthResponse, error)
 	OAuthLogin(context.Context, *OAuthRequest) (*OAuthLoginResponse, error)
 	SelectRole(context.Context, *SelectRoleRequest) (*RoleSelectionResponse, error)
-	Logout(context.Context, *LogoutRequest) (*Empty, error)
+	Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error)
 	GetMe(context.Context, *SessionRequest) (*UserResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
@@ -139,7 +140,7 @@ func (UnimplementedAuthServiceServer) OAuthLogin(context.Context, *OAuthRequest)
 func (UnimplementedAuthServiceServer) SelectRole(context.Context, *SelectRoleRequest) (*RoleSelectionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SelectRole not implemented")
 }
-func (UnimplementedAuthServiceServer) Logout(context.Context, *LogoutRequest) (*Empty, error) {
+func (UnimplementedAuthServiceServer) Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
 }
 func (UnimplementedAuthServiceServer) GetMe(context.Context, *SessionRequest) (*UserResponse, error) {

@@ -9,6 +9,7 @@ package authPb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -677,7 +678,7 @@ var File_auth_user_proto protoreflect.FileDescriptor
 
 const file_auth_user_proto_rawDesc = "" +
 	"\n" +
-	"\x0fauth/user.proto\x12\x04auth\"k\n" +
+	"\x0fauth/user.proto\x12\x04auth\x1a\x1bgoogle/protobuf/empty.proto\"k\n" +
 	"\x0fRegisterRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
@@ -724,15 +725,15 @@ const file_auth_user_proto_rawDesc = "" +
 	"\x10is_role_selected\x18\x05 \x01(\bR\x0eisRoleSelected\"1\n" +
 	"\x15RoleSelectionResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"\a\n" +
-	"\x05Empty2\xd4\x02\n" +
+	"\x05Empty2\xdf\x02\n" +
 	"\vAuthService\x125\n" +
 	"\bRegister\x12\x15.auth.RegisterRequest\x1a\x12.auth.AuthResponse\x12/\n" +
 	"\x05Login\x12\x12.auth.LoginRequest\x1a\x12.auth.AuthResponse\x12:\n" +
 	"\n" +
 	"OAuthLogin\x12\x12.auth.OAuthRequest\x1a\x18.auth.OAuthLoginResponse\x12B\n" +
 	"\n" +
-	"SelectRole\x12\x17.auth.SelectRoleRequest\x1a\x1b.auth.RoleSelectionResponse\x12*\n" +
-	"\x06Logout\x12\x13.auth.LogoutRequest\x1a\v.auth.Empty\x121\n" +
+	"SelectRole\x12\x17.auth.SelectRoleRequest\x1a\x1b.auth.RoleSelectionResponse\x125\n" +
+	"\x06Logout\x12\x13.auth.LogoutRequest\x1a\x16.google.protobuf.Empty\x121\n" +
 	"\x05GetMe\x12\x14.auth.SessionRequest\x1a\x12.auth.UserResponseBBZ@github.com/Prototype-1/freelanceX_user_service/proto/auth;authPbb\x06proto3"
 
 var (
@@ -760,6 +761,7 @@ var file_auth_user_proto_goTypes = []any{
 	(*UserResponse)(nil),          // 8: auth.UserResponse
 	(*RoleSelectionResponse)(nil), // 9: auth.RoleSelectionResponse
 	(*Empty)(nil),                 // 10: auth.Empty
+	(*emptypb.Empty)(nil),         // 11: google.protobuf.Empty
 }
 var file_auth_user_proto_depIdxs = []int32{
 	0,  // 0: auth.AuthService.Register:input_type -> auth.RegisterRequest
@@ -772,7 +774,7 @@ var file_auth_user_proto_depIdxs = []int32{
 	6,  // 7: auth.AuthService.Login:output_type -> auth.AuthResponse
 	7,  // 8: auth.AuthService.OAuthLogin:output_type -> auth.OAuthLoginResponse
 	9,  // 9: auth.AuthService.SelectRole:output_type -> auth.RoleSelectionResponse
-	10, // 10: auth.AuthService.Logout:output_type -> auth.Empty
+	11, // 10: auth.AuthService.Logout:output_type -> google.protobuf.Empty
 	8,  // 11: auth.AuthService.GetMe:output_type -> auth.UserResponse
 	6,  // [6:12] is the sub-list for method output_type
 	0,  // [0:6] is the sub-list for method input_type

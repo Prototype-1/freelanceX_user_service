@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package auth;
 
+import "google/protobuf/empty.proto";
+
 option go_package = "github.com/Prototype-1/freelanceX_user_service/proto/auth;authPb";
 
 service AuthService {
@@ -9,7 +11,7 @@ service AuthService {
   rpc Login(LoginRequest) returns (AuthResponse);
   rpc OAuthLogin(OAuthRequest) returns (OAuthLoginResponse); 
   rpc SelectRole(SelectRoleRequest) returns (RoleSelectionResponse); 
-  rpc Logout(LogoutRequest) returns (Empty);
+  rpc Logout(LogoutRequest) returns (google.protobuf.Empty);
   rpc GetMe(SessionRequest) returns (UserResponse);
 }
 
