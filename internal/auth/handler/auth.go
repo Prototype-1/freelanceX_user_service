@@ -5,6 +5,7 @@ import (
 
 	authPb "github.com/Prototype-1/freelanceX_user_service/proto/auth"
 	"github.com/Prototype-1/freelanceX_user_service/internal/auth/service"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type AuthHandler struct {
@@ -33,7 +34,7 @@ func (h *AuthHandler) SelectRole(ctx context.Context, req *authPb.SelectRoleRequ
 }
 
 
-func (h *AuthHandler) Logout(ctx context.Context, req *authPb.LogoutRequest) (*authPb.Empty, error) {
+func (h *AuthHandler) Logout(ctx context.Context, req *authPb.LogoutRequest) (*emptypb.Empty, error) {
 	return h.Service.Logout(ctx, req)
 }
 

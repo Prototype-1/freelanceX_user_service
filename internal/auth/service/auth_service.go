@@ -10,8 +10,7 @@ import (
 authPb "github.com/Prototype-1/freelanceX_user_service/proto/auth"
  "github.com/Prototype-1/freelanceX_user_service/internal/auth/repository"
 "github.com/Prototype-1/freelanceX_user_service/pkg/jwt"
-
-
+"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type AuthService struct {
@@ -147,11 +146,11 @@ func (s *AuthService) SelectRole(ctx context.Context, req *authPb.SelectRoleRequ
 	}, nil
 }
 
-func (s *AuthService) Logout(ctx context.Context, req *authPb.LogoutRequest) (*authPb.Empty, error) {
+func (s *AuthService) Logout(ctx context.Context, req *authPb.LogoutRequest) (*emptypb.Empty, error) {
 	if err := redis.DeleteSession(ctx, req.SessionId); err != nil {
 		return nil, err
 	}
-	return &authPb.Empty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *AuthService) GetMe(ctx context.Context, req *authPb.SessionRequest) (*authPb.UserResponse, error) {
