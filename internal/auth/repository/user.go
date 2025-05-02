@@ -27,6 +27,10 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 }
 
 func (r *userRepository) CreateUser(ctx context.Context, user *model.User) error {
+	var existingUser model.User
+	if err := r.DB.WithContext(ctx).Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
+		return errors.New("email already exists")
+	}
 	if err := r.DB.WithContext(ctx).Create(user).Error; err != nil {
 		return err
 	}

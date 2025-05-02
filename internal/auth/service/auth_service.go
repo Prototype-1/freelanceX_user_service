@@ -21,6 +21,8 @@ func NewAuthService(repo repository.UserRepository) *AuthService {
 	return &AuthService{UserRepo: repo}
 }
 
+// In freelanceX_user_service/auth/service/auth_service.go
+
 func (s *AuthService) Register(ctx context.Context, req *authPb.RegisterRequest) (*authPb.AuthResponse, error) {
 	if req.Role == "admin" {
 		exists, err := s.UserRepo.IsAdminExists(ctx)
@@ -30,6 +32,19 @@ func (s *AuthService) Register(ctx context.Context, req *authPb.RegisterRequest)
 		if exists {
 			return nil, errors.New("an admin already exists")
 		}
+	}
+
+	err := s.UserRepo.CreateUser(ctx, &model.User{
+		Name:     req.Name,
+		Email:    req.Email,
+		PasswordHash: &req.Password,
+		Role:     req.Role,
+	})
+	if err != nil {
+		if err.Error() == "email already exists" {
+			return nil, errors.New("this email is already registered")
+		}
+		return nil, err
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -49,7 +64,6 @@ func (s *AuthService) Register(ctx context.Context, req *authPb.RegisterRequest)
 	if err := s.UserRepo.CreateUser(ctx, &user); err != nil {
 		return nil, err
 	}
-
 
 	return &authPb.AuthResponse{
 		Message: "Registration successful. Please log in to continue....",
