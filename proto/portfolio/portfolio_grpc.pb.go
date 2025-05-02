@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.1
-// source: proto/portfolio/portfolio.proto
+// source: portfolio/portfolio.proto
 
 package portfolio
 
@@ -193,5 +193,5 @@ var PortfolioService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/portfolio/portfolio.proto",
+	Metadata: "portfolio/portfolio.proto",
 }
