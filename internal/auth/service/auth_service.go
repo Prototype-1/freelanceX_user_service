@@ -4,6 +4,7 @@ import (
 "context"
 "errors"
  "time"
+ "github.com/google/uuid"
 "golang.org/x/crypto/bcrypt"
  "github.com/Prototype-1/freelanceX_user_service/internal/auth/model"
 "github.com/Prototype-1/freelanceX_user_service/pkg/redis"
@@ -21,8 +22,6 @@ func NewAuthService(repo repository.UserRepository) *AuthService {
 	return &AuthService{UserRepo: repo}
 }
 
-// In freelanceX_user_service/auth/service/auth_service.go
-
 func (s *AuthService) Register(ctx context.Context, req *authPb.RegisterRequest) (*authPb.AuthResponse, error) {
 	if req.Role == "admin" {
 		exists, err := s.UserRepo.IsAdminExists(ctx)
@@ -33,20 +32,6 @@ func (s *AuthService) Register(ctx context.Context, req *authPb.RegisterRequest)
 			return nil, errors.New("an admin already exists")
 		}
 	}
-
-	err := s.UserRepo.CreateUser(ctx, &model.User{
-		Name:     req.Name,
-		Email:    req.Email,
-		PasswordHash: &req.Password,
-		Role:     req.Role,
-	})
-	if err != nil {
-		if err.Error() == "email already exists" {
-			return nil, errors.New("this email is already registered")
-		}
-		return nil, err
-	}
-
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
@@ -57,17 +42,20 @@ func (s *AuthService) Register(ctx context.Context, req *authPb.RegisterRequest)
 		Email:        req.Email,
 		PasswordHash: new(string),
 		Role:         req.Role,
+		IsRoleSelected: true,
 	}
 
 	*user.PasswordHash = string(hashedPassword)
-
 	if err := s.UserRepo.CreateUser(ctx, &user); err != nil {
+		if err.Error() == "email already exists" {
+			return nil, errors.New("this email is already registered")
+		}
 		return nil, err
 	}
 
 	return &authPb.AuthResponse{
 		Message: "Registration successful. Please log in to continue....",
-		UserId: user.ID.String(),
+		UserId:  user.ID.String(),
 	}, nil
 }
 
@@ -103,13 +91,38 @@ func (s *AuthService) OAuthLogin(ctx context.Context, req *authPb.OAuthRequest) 
 	if err != nil {
 		return nil, err
 	}
+
 	if user == nil {
-		return nil, errors.New("user not found")
+		newUser := &model.User{
+			ID:             uuid.New(),
+			//Name:           req.Name,
+			Email:          req.Email,
+			OAuthProvider:  &req.OauthProvider,
+			OAuthID:        &req.OauthId,
+			IsRoleSelected: false,
+			Role:           "", // Role to be selected later
+		}
+
+		if err := s.UserRepo.CreateUser(ctx, newUser); err != nil {
+			return nil, err
+		}
+
+		return &authPb.OAuthLoginResponse{
+			UserId:          newUser.ID.String(),
+			IsRoleSelected:  false,
+			Message:         "User created. Role selection required.",
+			Name:            newUser.Name,
+			Email:           newUser.Email,
+		}, nil
 	}
 
 	if !user.IsRoleSelected {
 		return &authPb.OAuthLoginResponse{
-			UserId: user.ID.String(),
+			UserId:         user.ID.String(),
+			IsRoleSelected: false,
+			Message:        "Role selection required",
+			Name:           user.Name,
+			Email:          user.Email,
 		}, nil
 	}
 
@@ -124,14 +137,14 @@ func (s *AuthService) OAuthLogin(ctx context.Context, req *authPb.OAuthRequest) 
 	}
 
 	return &authPb.OAuthLoginResponse{
-		Message:     "OAuth login successful",
-		AccessToken: accessToken,
-		SessionId:   sessionID,
-		UserId:      user.ID.String(),
-		IsRoleSelected: user.IsRoleSelected,
-		Name:        user.Name,
-		Email:       user.Email,
-		Role:        user.Role,
+		Message:         "OAuth login successful",
+		AccessToken:     accessToken,
+		SessionId:       sessionID,
+		UserId:          user.ID.String(),
+		IsRoleSelected:  true,
+		Name:            user.Name,
+		Email:           user.Email,
+		Role:            user.Role,
 	}, nil
 }
 
@@ -146,7 +159,7 @@ func (s *AuthService) SelectRole(ctx context.Context, req *authPb.SelectRoleRequ
 			return nil, err
 		}
 		if exists {
-			return nil, errors.New("An admin already exists")
+			return nil, errors.New("an admin already exists")
 		}
 	}
 

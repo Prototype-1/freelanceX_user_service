@@ -31,6 +31,9 @@ func (r *userRepository) CreateUser(ctx context.Context, user *model.User) error
 	if err := r.DB.WithContext(ctx).Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
 		return errors.New("email already exists")
 	}
+	if !user.IsRoleSelected {
+		user.IsRoleSelected = true 
+	}
 	if err := r.DB.WithContext(ctx).Create(user).Error; err != nil {
 		return err
 	}
@@ -61,7 +64,10 @@ func (r *userRepository) GetUserByID(ctx context.Context, userID string) (*model
 
 func (r *userRepository) GetUserByOAuthID(ctx context.Context, oauthProvider, oauthID string) (*model.User, error) {
 	var user model.User
-	if err := r.DB.WithContext(ctx).Where("oauth_provider = ? AND oauth_id = ?", oauthProvider, oauthID).First(&user).Error; err != nil {
+	if err := r.DB.WithContext(ctx).Where(&model.User{
+		OAuthProvider: &oauthProvider,
+		OAuthID:       &oauthID,
+	}).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil 
 		}
