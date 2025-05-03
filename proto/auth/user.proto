@@ -30,9 +30,8 @@ message LoginRequest {
 }
 
 message OAuthRequest {
-  string email = 1;
-  string oauth_provider = 2;
-  string oauth_id = 3;
+  string oauth_provider = 1; 
+  string code = 2;          
 }
 
 message SelectRoleRequest {

@@ -10,8 +10,11 @@ import (
 "github.com/Prototype-1/freelanceX_user_service/pkg/redis"
 authPb "github.com/Prototype-1/freelanceX_user_service/proto/auth"
  "github.com/Prototype-1/freelanceX_user_service/internal/auth/repository"
+ "github.com/Prototype-1/freelanceX_user_service/pkg/oauth"
 "github.com/Prototype-1/freelanceX_user_service/pkg/jwt"
 "google.golang.org/protobuf/types/known/emptypb"
+"fmt"
+"encoding/json"
 )
 
 type AuthService struct {
@@ -87,7 +90,35 @@ func (s *AuthService) Login(ctx context.Context, req *authPb.LoginRequest) (*aut
 }
 
 func (s *AuthService) OAuthLogin(ctx context.Context, req *authPb.OAuthRequest) (*authPb.OAuthLoginResponse, error) {
-	user, err := s.UserRepo.GetUserByOAuthID(ctx, req.OauthProvider, req.OauthId)
+	if req.OauthProvider != "google" {
+		return nil, errors.New("unsupported oauth provider")
+	}
+
+	// Exchange code for token
+	token, err := oauth.GoogleConfig.Exchange(ctx, req.Code)
+	if err != nil {
+		return nil, fmt.Errorf("failed to exchange token: %w", err)
+	}
+	client := oauth.GoogleConfig.Client(ctx, token)
+	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch user info: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var userInfo struct {
+		ID            string `json:"id"`
+		Email         string `json:"email"`
+		VerifiedEmail bool   `json:"verified_email"`
+		Name          string `json:"name"`
+		Picture       string `json:"picture"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+		return nil, fmt.Errorf("failed to decode user info: %w", err)
+	}
+
+	// Check if user exists
+	user, err := s.UserRepo.GetUserByOAuthID(ctx, req.OauthProvider, userInfo.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -95,12 +126,11 @@ func (s *AuthService) OAuthLogin(ctx context.Context, req *authPb.OAuthRequest) 
 	if user == nil {
 		newUser := &model.User{
 			ID:             uuid.New(),
-			//Name:           req.Name,
-			Email:          req.Email,
+			Email:          userInfo.Email,
+			Name:           userInfo.Name,
 			OAuthProvider:  &req.OauthProvider,
-			OAuthID:        &req.OauthId,
+			OAuthID:        &userInfo.ID,
 			IsRoleSelected: false,
-			Role:           "", // Role to be selected later
 		}
 
 		if err := s.UserRepo.CreateUser(ctx, newUser); err != nil {
@@ -108,11 +138,11 @@ func (s *AuthService) OAuthLogin(ctx context.Context, req *authPb.OAuthRequest) 
 		}
 
 		return &authPb.OAuthLoginResponse{
-			UserId:          newUser.ID.String(),
-			IsRoleSelected:  false,
-			Message:         "User created. Role selection required.",
-			Name:            newUser.Name,
-			Email:           newUser.Email,
+			UserId:         newUser.ID.String(),
+			IsRoleSelected: false,
+			Message:        "User created. Role selection required.",
+			Name:           newUser.Name,
+			Email:          newUser.Email,
 		}, nil
 	}
 
@@ -131,8 +161,8 @@ func (s *AuthService) OAuthLogin(ctx context.Context, req *authPb.OAuthRequest) 
 		return nil, err
 	}
 
-	sessionID := "session-id"
-	if err := redis.SetSession(ctx, sessionID, user.ID.String(), time.Hour*24); err != nil {
+	sessionID := "session-id" // You can make this random if needed
+	if err := redis.SetSession(ctx, sessionID, user.ID.String(), 24*time.Hour); err != nil {
 		return nil, err
 	}
 

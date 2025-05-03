@@ -15,6 +15,9 @@ type Config struct {
 	DBName      string
 	RedisAddr   string
 	Port        string
+	GoogleClientID   string
+	GoogleSecret     string
+	GoogleRedirect   string
 }
 
 var AppConfig Config
@@ -34,6 +37,9 @@ func LoadConfig() {
 		DBName:      getEnv("DB_NAME", "freelanceX_user_service"),
 		RedisAddr:   getEnv("REDIS_ADDR", "localhost:6379"),
 		Port:        getEnv("PORT", "8000"),
+		GoogleClientID:  getEnv("GOOGLE_CLIENT_ID", ""),
+	GoogleSecret:    getEnv("GOOGLE_CLIENT_SECRET", ""),
+	GoogleRedirect:  getEnv("GOOGLE_REDIRECT_URL", ""),
 	}
 }
 

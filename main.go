@@ -23,11 +23,13 @@ reviewHandler "github.com/Prototype-1/freelanceX_user_service/internal/review/ha
 reviewRepo "github.com/Prototype-1/freelanceX_user_service/internal/review/repository"
 reviewService "github.com/Prototype-1/freelanceX_user_service/internal/review/service"
 reviewPb "github.com/Prototype-1/freelanceX_user_service/proto/review"
+"github.com/Prototype-1/freelanceX_user_service/pkg/oauth"
 	"google.golang.org/grpc"
 )
 
 func main() {
 	config.LoadConfig()
+	oauth.InitGoogleOAuth()
 	redis.InitRedis()
 	dsn := buildDSN()
 	dbConn, err := db.InitDB(dsn)
