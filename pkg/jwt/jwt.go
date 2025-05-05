@@ -16,12 +16,14 @@ func getSecretKey() []byte {
 
 type Claims struct {
 	UserID string `json:"user_id"`
+	Role string `json:"role"`
 	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(userID string) (string, error) {
+func GenerateAccessToken(userID string, role string) (string, error) {
 	claims := Claims{
 		UserID: userID,
+		Role: role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), 
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -39,6 +41,11 @@ func ParseAccessToken(tokenString string) (*Claims, error) {
 	})
 	if err != nil || !token.Valid {
 		return nil, errors.New("invalid token")
+	}
+	if ve, ok := err.(jwt.ValidationError); ok {
+		if ve.Errors&jwt.ValidationErrorExpired != 0 {
+			return nil, errors.New("token expired")
+		}
 	}
 	claims, ok := token.Claims.(*Claims)
 	if !ok {

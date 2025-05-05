@@ -72,14 +72,14 @@ func (s *AuthService) Login(ctx context.Context, req *authPb.LoginRequest) (*aut
 		return nil, errors.New("invalid credentials")
 	}
 
-	accessToken, err := jwt.GenerateAccessToken(user.ID.String())
+	accessToken, err := jwt.GenerateAccessToken(user.ID.String(), user.Role)
 	if err != nil {
 		return nil, err
 	}
 
-	sessionID := "session-id"
+	sessionID := uuid.New().String()
 	if err := redis.SetSession(ctx, sessionID, user.ID.String(), time.Hour*24); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to set session in Redis: %w", err)
 	}
 
 	return &authPb.AuthResponse{
@@ -94,7 +94,6 @@ func (s *AuthService) OAuthLogin(ctx context.Context, req *authPb.OAuthRequest) 
 		return nil, errors.New("unsupported oauth provider")
 	}
 
-	// Exchange code for token
 	token, err := oauth.GoogleConfig.Exchange(ctx, req.Code)
 	if err != nil {
 		return nil, fmt.Errorf("failed to exchange token: %w", err)
@@ -117,13 +116,16 @@ func (s *AuthService) OAuthLogin(ctx context.Context, req *authPb.OAuthRequest) 
 		return nil, fmt.Errorf("failed to decode user info: %w", err)
 	}
 
-	// Check if user exists
 	user, err := s.UserRepo.GetUserByOAuthID(ctx, req.OauthProvider, userInfo.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	if user == nil {
+		existingUser, err := s.UserRepo.GetUserByEmail(ctx, userInfo.Email)
+		if err == nil && existingUser != nil {
+			return nil, errors.New("this email is already registered")
+		}
 		newUser := &model.User{
 			ID:             uuid.New(),
 			Email:          userInfo.Email,
@@ -156,16 +158,15 @@ func (s *AuthService) OAuthLogin(ctx context.Context, req *authPb.OAuthRequest) 
 		}, nil
 	}
 
-	accessToken, err := jwt.GenerateAccessToken(user.ID.String())
+	accessToken, err := jwt.GenerateAccessToken(user.ID.String(), user.Role)
 	if err != nil {
 		return nil, err
 	}
 
-	sessionID := "session-id" // You can make this random if needed
+	sessionID := uuid.New().String()
 	if err := redis.SetSession(ctx, sessionID, user.ID.String(), 24*time.Hour); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to set session in Redis: %w", err)
 	}
-
 	return &authPb.OAuthLoginResponse{
 		Message:         "OAuth login successful",
 		AccessToken:     accessToken,
