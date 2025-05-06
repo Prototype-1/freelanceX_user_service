@@ -20,7 +20,8 @@ func GetRedisClient() *redis.Client {
 }
 
 func SetSession(ctx context.Context, sessionID string, userID string, ttl time.Duration) error {
-	err := rdb.Set(ctx, sessionID, userID, ttl).Err()
+	key := "session:" + sessionID
+	err := rdb.Set(ctx, key, userID, ttl).Err()
 	if err != nil {
 		log.Println("Error setting session:", err)
 		return err
@@ -29,7 +30,8 @@ func SetSession(ctx context.Context, sessionID string, userID string, ttl time.D
 }
 
 func GetSession(ctx context.Context, sessionID string) (string, error) {
-	userID, err := rdb.Get(ctx, sessionID).Result()
+	key := "session:" + sessionID
+	userID, err := rdb.Get(ctx, key).Result()
 	if err == redis.Nil {
 		return "", nil 
 	}
@@ -41,7 +43,8 @@ func GetSession(ctx context.Context, sessionID string) (string, error) {
 }
 
 func DeleteSession(ctx context.Context, sessionID string) error {
-	err := rdb.Del(ctx, sessionID).Err()
+	key := "session:" + sessionID
+	err := rdb.Del(ctx, key).Err()
 	if err != nil {
 		log.Println("Error deleting session:", err)
 		return err
