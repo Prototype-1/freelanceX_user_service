@@ -8,6 +8,7 @@ import (
 	userRepo "github.com/Prototype-1/freelanceX_user_service/internal/auth/repository"
 	userSvc "github.com/Prototype-1/freelanceX_user_service/internal/auth/service"
 	"github.com/Prototype-1/freelanceX_user_service/pkg/db"
+	"github.com/Prototype-1/freelanceX_user_service/pkg/roles"
 	"github.com/Prototype-1/freelanceX_user_service/pkg/redis"
 	"github.com/Prototype-1/freelanceX_user_service/config"
 	authPb "github.com/Prototype-1/freelanceX_user_service/proto/auth"
@@ -37,21 +38,23 @@ func main() {
 		log.Fatalf("failed to initialize database: %v", err)
 	}
 
+	roleChecker := role.NewChecker()
+
 	userRepo := userRepo.NewUserRepository(dbConn)
 	authService := userSvc.NewAuthService(userRepo)
 	authHandler := userHdlr.NewAuthHandler(authService)
 
 	profileRepo := profileRepo.NewRepository(dbConn)
 	profileService := profileSvc.NewService(profileRepo)
-	profileHandler := profileHdlr.NewHandler(profileService)
+	profileHandler := profileHdlr.NewHandler(profileService, roleChecker)
 
 	portfolioRepo := portRepo.NewRepository(dbConn)
 	portfolioService := portSvc.NewService(portfolioRepo)
-	portfolioHandler := portHdlr.NewHandler(portfolioService)
+	portfolioHandler := portHdlr.NewHandler(portfolioService, roleChecker)
 
 	reviewRepository := reviewRepo.NewReviewRepository(dbConn)
 	reviewService := reviewService.NewReviewService(reviewRepository, userRepo)
-	reviewHandler := reviewHandler.NewReviewHandler(reviewService)
+	reviewHandler := reviewHandler.NewReviewHandler(reviewService, roleChecker)
 
 	grpcServer := grpc.NewServer()
 	authPb.RegisterAuthServiceServer(grpcServer, authHandler)

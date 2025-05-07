@@ -3,22 +3,30 @@ package handler
 import (
 	"context"
 	"time"
-
+ "github.com/Prototype-1/freelanceX_user_service/pkg/roles"
 	"github.com/Prototype-1/freelanceX_user_service/internal/portfolio/model"
 	"github.com/Prototype-1/freelanceX_user_service/internal/portfolio/service"
 	pb "github.com/Prototype-1/freelanceX_user_service/proto/portfolio"
+	"errors"
 )
 
 type Handler struct {
 	pb.UnimplementedPortfolioServiceServer
 	service service.Service
+	roles   role.Checker
 }
 
-func NewHandler(s service.Service) *Handler {
-	return &Handler{service: s}
+func NewHandler(s service.Service, r role.Checker) *Handler {
+	return &Handler{service: s, roles: r}
 }
+
+var ErrPermissionDenied = errors.New("permission denied")
 
 func (h *Handler) CreatePortfolio(ctx context.Context, req *pb.CreatePortfolioRequest) (*pb.CreatePortfolioResponse, error) {
+	if !h.roles.HasRole(ctx, "freelancer") {
+		return nil, ErrPermissionDenied
+	}
+	
 	portfolio := &model.Portfolio{
 		FreelancerID: req.FreelancerId,
 		Title:        req.Title,
@@ -35,6 +43,10 @@ func (h *Handler) CreatePortfolio(ctx context.Context, req *pb.CreatePortfolioRe
 }
 
 func (h *Handler) GetPortfolio(ctx context.Context, req *pb.GetPortfolioRequest) (*pb.GetPortfolioResponse, error) {
+	if !h.roles.HasRole(ctx, "freelancer", "client", "admin") {
+		return nil, ErrPermissionDenied
+	}
+
 	data, err := h.service.GetByFreelancerID(ctx, req.FreelancerId)
 	if err != nil {
 		return nil, err
@@ -54,6 +66,10 @@ func (h *Handler) GetPortfolio(ctx context.Context, req *pb.GetPortfolioRequest)
 }
 
 func (h *Handler) DeletePortfolio(ctx context.Context, req *pb.DeletePortfolioRequest) (*pb.DeletePortfolioResponse, error) {
+	if !h.roles.HasRole(ctx, "freelancer", "admin") {
+		return nil, ErrPermissionDenied
+	}
+	
 	err := h.service.Delete(ctx, req.PortfolioId)
 	if err != nil {
 		return nil, err

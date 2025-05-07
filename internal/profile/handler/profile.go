@@ -4,18 +4,27 @@ import (
 	"context"
 	"github.com/Prototype-1/freelanceX_user_service/internal/profile/service"
 	"github.com/Prototype-1/freelanceX_user_service/proto/profile"
+	"github.com/Prototype-1/freelanceX_user_service/pkg/roles"
+	"errors"
 )
 
 type Handler struct {
 	profile.UnimplementedProfileServiceServer
 	service service.Service
+	roles   role.Checker
 }
 
-func NewHandler(s service.Service) *Handler {
-	return &Handler{service: s}
+func NewHandler(s service.Service, r role.Checker) *Handler {
+	return &Handler{service: s, roles: r}
 }
+
+var ErrPermissionDenied = errors.New("permission denied")
 
 func (h *Handler) CreateProfile(ctx context.Context, req *profile.CreateProfileRequest) (*profile.CreateProfileResponse, error) {
+	if !h.roles.HasRole(ctx, "freelancer") {
+		return nil, ErrPermissionDenied
+	}
+
 	err := h.service.CreateOrUpdateProfile(ctx, req)
 	if err != nil {
 		return nil, err
@@ -24,6 +33,10 @@ func (h *Handler) CreateProfile(ctx context.Context, req *profile.CreateProfileR
 }
 
 func (h *Handler) UpdateProfile(ctx context.Context, req *profile.UpdateProfileRequest) (*profile.UpdateProfileResponse, error) {
+	if !h.roles.HasRole(ctx, "freelancer") {
+		return nil, ErrPermissionDenied
+	}
+
 	err := h.service.CreateOrUpdateProfile(ctx, &profile.CreateProfileRequest{
 		UserId:            req.UserId,
 		Title:              req.Title,
@@ -43,6 +56,10 @@ func (h *Handler) UpdateProfile(ctx context.Context, req *profile.UpdateProfileR
 }
 
 func (h *Handler) GetProfile(ctx context.Context, req *profile.GetProfileRequest) (*profile.GetProfileResponse, error) {
+	if !h.roles.HasRole(ctx, "freelancer", "client", "admin") {
+		return nil, ErrPermissionDenied
+	}
+	
 	p, err := h.service.GetProfile(ctx, req.UserId)
 	if err != nil {
 		return nil, err
