@@ -46,6 +46,7 @@ message LogoutRequest {
 message SessionRequest {
   string token = 1;
   string session_id = 2;
+   string user_id = 3;
 }
 
 // === Response Messages ===

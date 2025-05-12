@@ -8,6 +8,7 @@ import (
 	"github.com/Prototype-1/freelanceX_user_service/internal/portfolio/service"
 	pb "github.com/Prototype-1/freelanceX_user_service/proto/portfolio"
 	"errors"
+	"log"
 )
 
 type Handler struct {
@@ -24,6 +25,7 @@ var ErrPermissionDenied = errors.New("permission denied")
 
 func (h *Handler) CreatePortfolio(ctx context.Context, req *pb.CreatePortfolioRequest) (*pb.CreatePortfolioResponse, error) {
 	if !h.roles.HasRole(ctx, "freelancer") {
+		log.Println("Permission denied: user is not a freelancer")
 		return nil, ErrPermissionDenied
 	}
 	

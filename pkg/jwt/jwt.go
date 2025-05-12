@@ -35,24 +35,47 @@ func GenerateAccessToken(userID string, role string) (string, error) {
 	return token.SignedString(getSecretKey())
 }
 
+// func ParseAccessToken(tokenString string) (*Claims, error) {
+// 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+// 		return getSecretKey(), nil
+// 	})
+// 	if err != nil || !token.Valid {
+// 		return nil, errors.New("invalid token")
+// 	}
+// 	if ve, ok := err.(jwt.ValidationError); ok {
+// 		if ve.Errors&jwt.ValidationErrorExpired != 0 {
+// 			return nil, errors.New("token expired")
+// 		}
+// 	}
+// 	claims, ok := token.Claims.(*Claims)
+// 	if !ok {
+// 		return nil, errors.New("invalid claims")
+// 	}
+// 	return claims, nil
+// }
+
 func ParseAccessToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return getSecretKey(), nil
 	})
-	if err != nil || !token.Valid {
+
+	if err != nil {
+		if ve, ok := err.(*jwt.ValidationError); ok {
+			if ve.Errors&jwt.ValidationErrorExpired != 0 {
+				return nil, errors.New("token expired")
+			}
+		}
 		return nil, errors.New("invalid token")
 	}
-	if ve, ok := err.(jwt.ValidationError); ok {
-		if ve.Errors&jwt.ValidationErrorExpired != 0 {
-			return nil, errors.New("token expired")
-		}
-	}
+
 	claims, ok := token.Claims.(*Claims)
-	if !ok {
+	if !ok || !token.Valid {
 		return nil, errors.New("invalid claims")
 	}
+
 	return claims, nil
 }
+
 
 func ValidateSession(sessionID, userID string) bool {
 	ctx := context.Background()

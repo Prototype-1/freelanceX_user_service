@@ -212,21 +212,23 @@ func (s *AuthService) Logout(ctx context.Context, req *authPb.LogoutRequest) (*e
 }
 
 func (s *AuthService) GetMe(ctx context.Context, req *authPb.SessionRequest) (*authPb.UserResponse, error) {
-	claims, err := jwt.ParseAccessToken(req.Token)
-	if err != nil {
-		return nil, err
-	}
+    userID := req.GetUserId()
 
-	user, err := s.UserRepo.GetUserByID(ctx, claims.UserID)
-	if err != nil {
-		return nil, err
-	}
+    if userID == "" {
+        return nil, errors.New("user_id is required")
+    }
 
-	return &authPb.UserResponse{
-		Id:            user.ID.String(),
-		Name:          user.Name,
-		Email:         user.Email,
-		Role:          user.Role,
-		IsRoleSelected: user.IsRoleSelected,
-	}, nil
+    user, err := s.UserRepo.GetUserByID(ctx, userID)
+    if err != nil {
+        return nil, err
+    }
+
+    return &authPb.UserResponse{
+        Id:            user.ID.String(),
+        Name:          user.Name,
+        Email:         user.Email,
+        Role:          user.Role,
+        IsRoleSelected: user.IsRoleSelected,
+    }, nil
 }
+

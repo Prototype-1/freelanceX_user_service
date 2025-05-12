@@ -3,6 +3,7 @@ package model
 import (
 	"time"
 	"github.com/google/uuid"
+	"github.com/lib/pq"	
 )
 
 type FreelancerProfile struct {
@@ -12,9 +13,9 @@ type FreelancerProfile struct {
 	Bio             string         `gorm:"type:text"`
 	HourlyRate      float64        `gorm:"type:numeric"`
 	YearsOfExperience int          `gorm:"type:int"`
-	Skills          []string       `gorm:"type:text[]"` 
-	Languages       []string       `gorm:"type:text[]"` 
-	Certifications  []string       `gorm:"type:text[]"` 
+Skills         pq.StringArray `gorm:"type:text[]"`
+Languages      pq.StringArray `gorm:"type:text[]"`
+Certifications pq.StringArray `gorm:"type:text[]"`
 	Location        string         `gorm:"type:varchar(255)"`
 	ResponseTime    string         `gorm:"type:varchar(50)"` 
 	CreatedAt       time.Time      `gorm:"autoCreateTime"`

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/Prototype-1/freelanceX_user_service/internal/profile/model"
 	"github.com/Prototype-1/freelanceX_user_service/internal/profile/repository"
 	pb "github.com/Prototype-1/freelanceX_user_service/proto/profile"
@@ -33,9 +34,9 @@ func (s *service) CreateOrUpdateProfile(ctx context.Context, req *pb.CreateProfi
 		Bio:               req.Bio,
 		HourlyRate:        float64(req.HourlyRate),
 		YearsOfExperience: int(req.YearsOfExperience),
-		Skills:            req.Skills,
-		Languages:         req.Languages,
-		Certifications:    req.Certifications,
+		Skills:            pq.StringArray(req.Skills),
+	Languages:         pq.StringArray(req.Languages),
+	Certifications:    pq.StringArray(req.Certifications),
 		Location:          req.Location,
 		ResponseTime:      req.ResponseTime,
 	}
