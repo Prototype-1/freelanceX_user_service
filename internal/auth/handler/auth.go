@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-
 	authPb "github.com/Prototype-1/freelanceX_user_service/proto/auth"
 	"github.com/Prototype-1/freelanceX_user_service/internal/auth/service"
 	"google.golang.org/protobuf/types/known/emptypb"

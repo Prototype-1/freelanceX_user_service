@@ -14,6 +14,8 @@ authPb "github.com/Prototype-1/freelanceX_user_service/proto/auth"
 "github.com/Prototype-1/freelanceX_user_service/pkg/jwt"
 "google.golang.org/protobuf/types/known/emptypb"
 "fmt"
+"google.golang.org/grpc/status"
+"google.golang.org/grpc/codes"
 "encoding/json"
 )
 
@@ -230,5 +232,19 @@ func (s *AuthService) GetMe(ctx context.Context, req *authPb.SessionRequest) (*a
         Role:          user.Role,
         IsRoleSelected: user.IsRoleSelected,
     }, nil
+}
+
+func (s *AuthService) GetUserEmail(ctx context.Context, req *authPb.GetUserEmailRequest) (*authPb.GetUserEmailResponse, error) {
+	user, err := s.UserRepo.GetUserByID(ctx, req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to fetch user: %v", err)
+	}
+	if user == nil {
+		return nil, status.Errorf(codes.NotFound, "user not found")
+	}
+
+	return &authPb.GetUserEmailResponse{
+		Email: user.Email,
+	}, nil
 }
 

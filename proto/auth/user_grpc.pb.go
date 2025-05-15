@@ -20,12 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_Register_FullMethodName   = "/auth.AuthService/Register"
-	AuthService_Login_FullMethodName      = "/auth.AuthService/Login"
-	AuthService_OAuthLogin_FullMethodName = "/auth.AuthService/OAuthLogin"
-	AuthService_SelectRole_FullMethodName = "/auth.AuthService/SelectRole"
-	AuthService_Logout_FullMethodName     = "/auth.AuthService/Logout"
-	AuthService_GetMe_FullMethodName      = "/auth.AuthService/GetMe"
+	AuthService_Register_FullMethodName     = "/auth.AuthService/Register"
+	AuthService_Login_FullMethodName        = "/auth.AuthService/Login"
+	AuthService_OAuthLogin_FullMethodName   = "/auth.AuthService/OAuthLogin"
+	AuthService_SelectRole_FullMethodName   = "/auth.AuthService/SelectRole"
+	AuthService_Logout_FullMethodName       = "/auth.AuthService/Logout"
+	AuthService_GetMe_FullMethodName        = "/auth.AuthService/GetMe"
+	AuthService_GetUserEmail_FullMethodName = "/auth.AuthService/GetUserEmail"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -38,6 +39,7 @@ type AuthServiceClient interface {
 	SelectRole(ctx context.Context, in *SelectRoleRequest, opts ...grpc.CallOption) (*RoleSelectionResponse, error)
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetMe(ctx context.Context, in *SessionRequest, opts ...grpc.CallOption) (*UserResponse, error)
+	GetUserEmail(ctx context.Context, in *GetUserEmailRequest, opts ...grpc.CallOption) (*GetUserEmailResponse, error)
 }
 
 type authServiceClient struct {
@@ -108,6 +110,16 @@ func (c *authServiceClient) GetMe(ctx context.Context, in *SessionRequest, opts 
 	return out, nil
 }
 
+func (c *authServiceClient) GetUserEmail(ctx context.Context, in *GetUserEmailRequest, opts ...grpc.CallOption) (*GetUserEmailResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserEmailResponse)
+	err := c.cc.Invoke(ctx, AuthService_GetUserEmail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
@@ -118,6 +130,7 @@ type AuthServiceServer interface {
 	SelectRole(context.Context, *SelectRoleRequest) (*RoleSelectionResponse, error)
 	Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error)
 	GetMe(context.Context, *SessionRequest) (*UserResponse, error)
+	GetUserEmail(context.Context, *GetUserEmailRequest) (*GetUserEmailResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -145,6 +158,9 @@ func (UnimplementedAuthServiceServer) Logout(context.Context, *LogoutRequest) (*
 }
 func (UnimplementedAuthServiceServer) GetMe(context.Context, *SessionRequest) (*UserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMe not implemented")
+}
+func (UnimplementedAuthServiceServer) GetUserEmail(context.Context, *GetUserEmailRequest) (*GetUserEmailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserEmail not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -275,6 +291,24 @@ func _AuthService_GetMe_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AuthService_GetUserEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetUserEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GetUserEmail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetUserEmail(ctx, req.(*GetUserEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -305,6 +339,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMe",
 			Handler:    _AuthService_GetMe_Handler,
+		},
+		{
+			MethodName: "GetUserEmail",
+			Handler:    _AuthService_GetUserEmail_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
