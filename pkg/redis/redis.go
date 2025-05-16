@@ -5,6 +5,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"log"
 	"time"
+	"fmt"
 )
 
 var rdb *redis.Client
@@ -50,4 +51,9 @@ func DeleteSession(ctx context.Context, sessionID string) error {
 		return err
 	}
 	return nil
+}
+
+func SetUserOnline(ctx context.Context, userID string, ttl time.Duration) error {
+	key := fmt.Sprintf("online:%s", userID)
+	return rdb.Set(ctx, key, "1", ttl).Err()
 }

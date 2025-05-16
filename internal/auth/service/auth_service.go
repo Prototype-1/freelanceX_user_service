@@ -14,6 +14,7 @@ authPb "github.com/Prototype-1/freelanceX_user_service/proto/auth"
 "github.com/Prototype-1/freelanceX_user_service/pkg/jwt"
 "google.golang.org/protobuf/types/known/emptypb"
 "fmt"
+"log"
 "google.golang.org/grpc/status"
 "google.golang.org/grpc/codes"
 "encoding/json"
@@ -83,6 +84,10 @@ func (s *AuthService) Login(ctx context.Context, req *authPb.LoginRequest) (*aut
 	if err := redis.SetSession(ctx, sessionID, user.ID.String(), time.Hour*24); err != nil {
 		return nil, fmt.Errorf("failed to set session in Redis: %w", err)
 	}
+
+	if err := redis.SetUserOnline(ctx, user.ID.String(), 5*time.Minute); err != nil {
+    log.Printf("Failed to set user online: %v", err)
+}
 
 	return &authPb.AuthResponse{
 		AccessToken: accessToken,
@@ -169,6 +174,11 @@ func (s *AuthService) OAuthLogin(ctx context.Context, req *authPb.OAuthRequest) 
 	if err := redis.SetSession(ctx, sessionID, user.ID.String(), 24*time.Hour); err != nil {
 		return nil, fmt.Errorf("failed to set session in Redis: %w", err)
 	}
+
+	if err := redis.SetUserOnline(ctx, user.ID.String(), 5*time.Minute); err != nil {
+    log.Printf("Failed to set user online: %v", err)
+}
+
 	return &authPb.OAuthLoginResponse{
 		Message:         "OAuth login successful",
 		AccessToken:     accessToken,
