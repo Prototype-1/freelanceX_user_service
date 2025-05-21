@@ -36,7 +36,7 @@ func LoadConfig() {
 		DBPassword:  getEnv("DB_PASSWORD", "password"),
 		DBName:      getEnv("DB_NAME", "freelanceX_user_service"),
 		RedisAddr:   getEnv("REDIS_ADDR", "localhost:6379"),
-		Port:        getEnv("PORT", "8000"),
+		Port:        getEnv("PORT", "50051"),
 		GoogleClientID:  getEnv("GOOGLE_CLIENT_ID", ""),
 	GoogleSecret:    getEnv("GOOGLE_CLIENT_SECRET", ""),
 	GoogleRedirect:  getEnv("GOOGLE_REDIRECT_URL", ""),
