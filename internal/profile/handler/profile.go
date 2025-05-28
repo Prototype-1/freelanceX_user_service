@@ -78,3 +78,4 @@ func (h *Handler) GetProfile(ctx context.Context, req *profile.GetProfileRequest
 		ResponseTime:      p.ResponseTime,
 	}, nil
 }
+
