@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"context"
 	"gorm.io/gorm"
 	"github.com/Prototype-1/freelanceX_user_service/internal/profile/model"
@@ -36,6 +37,10 @@ func (r *repository) CreateOrUpdate(ctx context.Context, profile *model.Freelanc
 }
 
 func (r *repository) GetByUserID(ctx context.Context, userID string) (*model.FreelancerProfile, error) {
+_, err := uuid.Parse(userID)
+if err != nil {
+	return nil, fmt.Errorf("invalid UUID format for user_id: %v", err)
+}
 	var profile model.FreelancerProfile
 	if err := r.db.WithContext(ctx).Where("user_id = ?", userID).First(&profile).Error; err != nil {
 		return nil, err

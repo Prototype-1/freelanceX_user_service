@@ -6,6 +6,7 @@ import (
 	"github.com/Prototype-1/freelanceX_user_service/proto/profile"
 	"github.com/Prototype-1/freelanceX_user_service/pkg/roles"
 	"errors"
+	"log"
 )
 
 type Handler struct {
@@ -59,6 +60,8 @@ func (h *Handler) GetProfile(ctx context.Context, req *profile.GetProfileRequest
 	if !h.roles.HasRole(ctx, "freelancer", "client", "admin") {
 		return nil, ErrPermissionDenied
 	}
+
+	log.Printf("[GetProfile] Received request for user_id: '%s'", req.UserId)
 	
 	p, err := h.service.GetProfile(ctx, req.UserId)
 	if err != nil {
