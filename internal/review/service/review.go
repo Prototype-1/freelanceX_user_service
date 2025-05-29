@@ -2,6 +2,7 @@ package service
 
 import (
 	"time"
+	"context"
 	"errors"
 	"github.com/Prototype-1/freelanceX_user_service/internal/review/model"
 	"github.com/Prototype-1/freelanceX_user_service/internal/review/repository"
@@ -28,7 +29,7 @@ func NewReviewService(repo repository.ReviewRepository, userRepo authRepo.UserRe
 var ErrUnauthorizedReview = errors.New("only clients are allowed to submit reviews")
 
 func (s *reviewService) SubmitReview(review *model.FreelancerReview) (*model.FreelancerReview, error) {
-	user, err := s.userRepo.GetUserByID(nil, review.ClientID)
+user, err := s.userRepo.GetUserByID(context.TODO(), review.ClientID.String())
 	if err != nil {
 		return nil, err
 	}

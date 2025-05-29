@@ -7,6 +7,7 @@ import (
 	"github.com/Prototype-1/freelanceX_user_service/internal/review/service"
 	reviewPb "github.com/Prototype-1/freelanceX_user_service/proto/review"
 	"errors"
+	"github.com/google/uuid"
 	"github.com/Prototype-1/freelanceX_user_service/pkg/roles"
 )
 
@@ -30,27 +31,39 @@ func (h *ReviewHandler) SubmitReview(ctx context.Context, req *reviewPb.ReviewRe
 		return nil, ErrPermissionDenied
 	}
 
+projectID, err := uuid.Parse(req.GetProjectId())
+	if err != nil {
+		return nil, err
+	}
+	freelancerID, err := uuid.Parse(req.GetFreelancerId())
+	if err != nil {
+		return nil, err
+	}
+	clientID, err := uuid.Parse(req.GetClientId())
+	if err != nil {
+		return nil, err
+	}
+
 	review := &model.FreelancerReview{
-		ProjectID:     req.GetProjectId(),
-		FreelancerID:  req.GetFreelancerId(),
-		ClientID:      req.GetClientId(),
-		Rating:        int(req.GetRating()),
-		Feedback:      req.GetFeedback(),
+		ProjectID:    projectID,
+		FreelancerID: freelancerID,
+		ClientID:     clientID,
+		Rating:       int(req.GetRating()),
+		Feedback:     req.GetFeedback(),
 	}
 
 	created, err := h.service.SubmitReview(review)
 	if err != nil {
 		return nil, err
 	}
-
-	return &reviewPb.ReviewResponse{
-		Id:            created.ID,
-		ProjectId:     created.ProjectID,
-		FreelancerId:  created.FreelancerID,
-		ClientId:      created.ClientID,
-		Rating:        int32(created.Rating),
-		Feedback:      created.Feedback,
-		CreatedAt:     created.CreatedAt.Format(time.RFC3339),
+return &reviewPb.ReviewResponse{
+		Id:           created.ID.String(),
+		ProjectId:    created.ProjectID.String(),
+		FreelancerId: created.FreelancerID.String(),
+		ClientId:     created.ClientID.String(),
+		Rating:       int32(created.Rating),
+		Feedback:     created.Feedback,
+		CreatedAt:    created.CreatedAt.Format(time.RFC3339),
 	}, nil
 }
 
@@ -65,18 +78,17 @@ func (h *ReviewHandler) GetFreelancerReviews(ctx context.Context, req *reviewPb.
 	}
 
 	var protoReviews []*reviewPb.ReviewResponse
-	for _, r := range reviews {
-		protoReviews = append(protoReviews, &reviewPb.ReviewResponse{
-			Id:           r.ID,
-			ProjectId:    r.ProjectID,
-			FreelancerId: r.FreelancerID,
-			ClientId:     r.ClientID,
-			Rating:       int32(r.Rating),
-			Feedback:     r.Feedback,
-			CreatedAt:    r.CreatedAt.Format(time.RFC3339),
-		})
-	}
-
+for _, r := range reviews {
+	protoReviews = append(protoReviews, &reviewPb.ReviewResponse{
+		Id:           r.ID.String(),
+		ProjectId:    r.ProjectID.String(),
+		FreelancerId: r.FreelancerID.String(),
+		ClientId:     r.ClientID.String(),
+		Rating:       int32(r.Rating),
+		Feedback:     r.Feedback,
+		CreatedAt:    r.CreatedAt.Format(time.RFC3339),
+	})
+}
 	return &reviewPb.ReviewListResponse{
 		Reviews: protoReviews,
 	}, nil
