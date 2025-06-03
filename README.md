@@ -70,3 +70,7 @@ protoc --go_out=. --go-grpc_out=. proto/auth/portfolio.proto
     This service auto-creates empty profiles for freelancers on OAuth.
 
     Only one admin is supported system-wide.
+
+## Maintainers
+
+aswin100396@gmail.com
