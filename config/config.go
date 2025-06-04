@@ -30,12 +30,12 @@ func LoadConfig() {
 
 	AppConfig = Config{
 		JWTSecret:   getEnv("JWT_SECRET", ""),
-		DBHost:      getEnv("DB_HOST", "localhost"),
+		DBHost:      getEnv("DB_HOST", "postgres"),
 		DBPort:      getEnv("DB_PORT", "5432"),
 		DBUser:      getEnv("DB_USER", "postgres"),
 		DBPassword:  getEnv("DB_PASSWORD", "password"),
 		DBName:      getEnv("DB_NAME", "freelanceX_user_service"),
-		RedisAddr:   getEnv("REDIS_ADDR", "localhost:6379"),
+		RedisAddr:   getEnv("REDIS_ADDR", "redis:6379"),
 		Port:        getEnv("PORT", "50051"),
 		GoogleClientID:  getEnv("GOOGLE_CLIENT_ID", ""),
 	GoogleSecret:    getEnv("GOOGLE_CLIENT_SECRET", ""),

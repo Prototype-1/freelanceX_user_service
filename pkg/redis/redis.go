@@ -6,14 +6,21 @@ import (
 	"log"
 	"time"
 	"fmt"
+	"github.com/Prototype-1/freelanceX_user_service/config"
 )
 
 var rdb *redis.Client
 
 func InitRedis() {
 	rdb = redis.NewClient(&redis.Options{
-		Addr: "localhost:6379", 
+		Addr: config.AppConfig.RedisAddr,
 	})
+	    ctx := context.Background()
+    _, err := rdb.Ping(ctx).Result()
+    if err != nil {
+        log.Fatalf("Failed to connect to Redis: %v", err)
+    }
+    log.Println("Connected to Redis at:", config.AppConfig.RedisAddr)
 }
 
 func GetRedisClient() *redis.Client {
