@@ -231,9 +231,12 @@ func (s *AuthService) GetMe(ctx context.Context, req *authPb.SessionRequest) (*a
     }
 
     user, err := s.UserRepo.GetUserByID(ctx, userID)
-    if err != nil {
-        return nil, err
-    }
+if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to fetch user: %v", err)
+	}
+	if user == nil {
+		return nil, status.Errorf(codes.InvalidArgument, "user not found")
+	}
 
     return &authPb.UserResponse{
         Id:            user.ID.String(),
