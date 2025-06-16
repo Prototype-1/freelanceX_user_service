@@ -22,6 +22,21 @@ jobs:
           project_id: freelancex-463106
       - name: Deploy Kubernetes manifests
         run: |
-          kubectl apply -f k8s/user-service/secret.yaml
+          # Create or update the secret
+          kubectl create secret generic user-service-secret \
+            --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+            --from-literal=DB_HOST="postgres" \
+            --from-literal=DB_PORT="5432" \
+            --from-literal=DB_USER="postgres" \
+            --from-literal=DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            --from-literal=DB_NAME="freelancex_user_service" \
+            --from-literal=PORT="50051" \
+            --from-literal=REDIS_ADDR="redis:6379" \
+            --from-literal=GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}" \
+            --from-literal=GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
+            --from-literal=GOOGLE_REDIRECT_URL="${{ secrets.GOOGLE_REDIRECT_URL }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Apply deployment and service
           kubectl apply -f k8s/user-service/deployment.yaml
           kubectl apply -f k8s/user-service/service.yaml
