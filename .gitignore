@@ -14,3 +14,4 @@
 # Go binary files
 /bin/
 /obj/
+secret.yaml
