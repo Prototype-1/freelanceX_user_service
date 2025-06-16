@@ -20,7 +20,7 @@ jobs:
     - name: Create .env file
       run: |
         echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-        echo "DB_HOST=postgres" >> .env
+        echo "DB_HOST=postgres.default.svc.cluster.local" >> .env
         echo "DB_PORT=5432" >> .env
         echo "DB_USER=postgres" >> .env
         echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env

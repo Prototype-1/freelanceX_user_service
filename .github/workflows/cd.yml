@@ -25,7 +25,7 @@ jobs:
           # Create or update the secret
           kubectl create secret generic user-service-secret \
             --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
-            --from-literal=DB_HOST="postgres" \
+            --from-literal=DB_HOST="postgres.default.svc.cluster.local" \
             --from-literal=DB_PORT="5432" \
             --from-literal=DB_USER="postgres" \
             --from-literal=DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
