@@ -29,6 +29,7 @@ User service focus more on authentication/authorization using JWT for users (adm
 ```bash
 git clone https://github.com/Prototype-1/freelancex_user_service.git
 cd freelancex_project/user_service
+
 ```
 
 ### Install Dependencies
