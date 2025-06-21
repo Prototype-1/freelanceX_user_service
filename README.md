@@ -11,17 +11,6 @@ User service focus more on authentication/authorization using JWT for users (adm
 - Protocol Buffers
 - Redis (optional: for session or token caching)
 
-## Folder Structure
-.
-├── config/ # Configuration and environment loading
-├── handler/ # gRPC handler implementations
-├── model/ # Data models for DB
-├── proto/ # Protobuf service definitions
-├── repository/ # DB interactions via GORM
-├── service/ # Business logic layer
-├── main.go # App entrypoint
-└── go.mod
-
 
 ## Setup
 
